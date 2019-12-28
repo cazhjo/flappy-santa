@@ -10,8 +10,14 @@ html, body {
     padding: 0;
 }
 
+#play {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.1)), url("Pics/winter.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 canvas {
-    border: 2px solid grey;
+    min-height: 89.5%;
     background-image: url("Pics/94-wintersnow.jpg");
     background-size: cover;
 }
@@ -26,6 +32,3 @@ canvas {
 }
 
 
-@media screen and (min-width: ) {
-    
-}
