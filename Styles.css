@@ -11,10 +11,7 @@ html, body {
 }
 
 canvas {
-    min-width: 100%;
-    height: 80%;
     border: 2px solid grey;
-    margin: auto;
     background-image: url("Pics/94-wintersnow.jpg");
     background-size: cover;
 }
@@ -26,4 +23,9 @@ canvas {
 
 .brand {
     font-family: candy-cane;
+}
+
+
+@media screen and (min-width: ) {
+    
 }
