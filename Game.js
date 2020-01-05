@@ -1,7 +1,12 @@
 let canv, ctx;
-var x;
-var y;
-var gravity = 1;
+
+var x,
+y,
+velY = 0,
+gravity = 1,
+speed = 2.5,
+friction = 1;
+
 var inactive = new Image();
 var active = new Image();
 
@@ -43,27 +48,51 @@ function init() {
 function game() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
-      gravity = -50;
+      if (velY > -speed) {
+        velY -= 13.5;
+      }
       isActive = true;
     }
   }, false);
 
+  if(velY < speed){
+    velY++;
+  }
+
+  velY *= friction;
+  y += velY;
+
   ctx.clearRect(0, 0, canv.width, canv.height);
-  y += gravity;
+  moveObstacles();
+
   if (y > canv.height - 50) {
-    gravity = 0;
+    velY = 0;
     ctx.drawImage(inactive, x, canv.height - 50, 70, 60);
   }
   else {
-    if (isActive) {
-      ctx.drawImage(active, x, y, 70, 60);
-    }
-    else {
-      ctx.drawImage(inactive, x, y, 70, 60);
-    }
+    ctx.drawImage(inactive, x, y, 70, 60);
     isActive = false;
-    gravity = 1;
   }
-
-
+  
+  
 }
+
+var array = [];
+function moveObstacles(){
+  for (const obs of array) {
+    --obs.x;
+    ctx.rect(obs.x, obs.y, obs.width, obs.height)
+    ctx.fill();
+  }
+}
+
+function createObstacles(){
+  var rect = {
+    x: canv.width - 50,
+    y: 0,
+    width: 30,
+    height: 100
+  };
+  array.push(rect);
+}
+setInterval(createObstacles, 1000);
