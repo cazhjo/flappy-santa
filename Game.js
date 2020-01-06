@@ -2,10 +2,11 @@ let canv, ctx;
 
 //Position- och spel fysik variabler
 var x, y,
-velocity = 0,
-speed = 2.3,
-friction = 0.98,
-isDead = false;
+  velocity = 0,
+  speed = 2.3,
+  friction = 0.98,
+  isDead = false;
+
 
 var inactive = new Image();
 var active = new Image();
@@ -24,6 +25,7 @@ function init() {
   active.src = pic2;
   ctx.imageSmoothingEnabled = true;
 
+  inactive.style.backgroundColor = "black";
 
   function drawImageActualSize() {
     // Use the intrinsic size of image in CSS pixels for the canvas element
@@ -45,17 +47,24 @@ function init() {
   setInterval(game, 1000 / 60);
 }
 
+var playerPos = {
+  x: this.x,
+  y: 0,
+  width: 70,
+  height: 60
+};
+
 function game() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
-      if (velocity > -speed) {
+      if (velocity > -speed && !isDead) {
         velocity -= 13.5;
       }
       isActive = true;
     }
   }, false);
 
-  if(velocity < speed){
+  if (velocity < speed) {
     velocity++;
   }
 
@@ -63,7 +72,9 @@ function game() {
   y += velocity;
 
   ctx.clearRect(0, 0, canv.width, canv.height);
-  moveObstacles();
+  if (!isDead) {
+    moveObstacles();
+  }
 
   if (y > canv.height - 50) {
     velocity = 0;
@@ -73,25 +84,26 @@ function game() {
     ctx.drawImage(inactive, x, y, 70, 60);
     isActive = false;
   }
-  
-  
+
+  playerPos.y = y;
+  collisionDetection();
 }
 
 var topRects = [];
 var bottomRects = [];
 
-function moveObstacles(){
+function moveObstacles() {
   for (const obs of topRects) {
     //Tar bort onödiga obstacles som inte längre visas på skärmen
-    if(obs.x < -30){
+    if (obs.x < -30) {
       const index = topRects.indexOf(obs);
       ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
-      if(index > -1){
+      if (index > -1) {
         topRects.splice(index, 1);
       }
       continue;
     }
-    
+
     //Minskar x värdet så att blocket flyttas åt vänster
     obs.x -= 1;
     ctx.beginPath();
@@ -102,15 +114,15 @@ function moveObstacles(){
 
   for (const obs of bottomRects) {
     //Tar bort onödiga hinder som inte längre visas på skärmen
-    if(obs.x < -30){
+    if (obs.x < -30) {
       const index = bottomRects.indexOf(obs);
-      ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
-      if(index > -1){
+      //ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
+      if (index > -1) {
         bottomRects.splice(index, 1);
       }
       continue;
     }
-    
+
     //Minskar x värdet så att hindrena flyttas åt vänster
     obs.x -= 1;
     ctx.beginPath();
@@ -121,7 +133,7 @@ function moveObstacles(){
 }
 
 //skapar hinder och lägger in dom i varsin array
-function createObstacles(){
+function createObstacles() {
   var topRect = {
     x: canv.width,
     y: 0,
@@ -143,3 +155,11 @@ function createObstacles(){
 
 }
 setInterval(createObstacles, 2750);
+
+function collisionDetection() {
+  for (const obs of topRects) {
+    if ((playerPos.y > obs.x) && (playerPos.y < obs.x + obs.width) && (playerPos.y < obs.height)) {
+      isDead = true;
+    }
+  }
+}
