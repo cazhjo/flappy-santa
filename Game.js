@@ -1,11 +1,11 @@
 let canv, ctx;
 
-var x,
-y,
-velY = 0,
-gravity = 1,
-speed = 2.5,
-friction = 1;
+//Position- och spel fysik variabler
+var x, y,
+velocity = 0,
+speed = 2.3,
+friction = 0.98,
+isDead = false;
 
 var inactive = new Image();
 var active = new Image();
@@ -48,25 +48,25 @@ function init() {
 function game() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
-      if (velY > -speed) {
-        velY -= 13.5;
+      if (velocity > -speed) {
+        velocity -= 13.5;
       }
       isActive = true;
     }
   }, false);
 
-  if(velY < speed){
-    velY++;
+  if(velocity < speed){
+    velocity++;
   }
 
-  velY *= friction;
-  y += velY;
+  velocity *= friction;
+  y += velocity;
 
   ctx.clearRect(0, 0, canv.width, canv.height);
   moveObstacles();
 
   if (y > canv.height - 50) {
-    velY = 0;
+    velocity = 0;
     ctx.drawImage(inactive, x, canv.height - 50, 70, 60);
   }
   else {
@@ -77,22 +77,69 @@ function game() {
   
 }
 
-var array = [];
+var topRects = [];
+var bottomRects = [];
+
 function moveObstacles(){
-  for (const obs of array) {
-    --obs.x;
+  for (const obs of topRects) {
+    //Tar bort onödiga obstacles som inte längre visas på skärmen
+    if(obs.x < -30){
+      const index = topRects.indexOf(obs);
+      ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
+      if(index > -1){
+        topRects.splice(index, 1);
+      }
+      continue;
+    }
+    
+    //Minskar x värdet så att blocket flyttas åt vänster
+    obs.x -= 1;
+    ctx.beginPath();
     ctx.rect(obs.x, obs.y, obs.width, obs.height)
     ctx.fill();
+    ctx.closePath();
+  }
+
+  for (const obs of bottomRects) {
+    //Tar bort onödiga hinder som inte längre visas på skärmen
+    if(obs.x < -30){
+      const index = bottomRects.indexOf(obs);
+      ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
+      if(index > -1){
+        bottomRects.splice(index, 1);
+      }
+      continue;
+    }
+    
+    //Minskar x värdet så att hindrena flyttas åt vänster
+    obs.x -= 1;
+    ctx.beginPath();
+    ctx.rect(obs.x, obs.y, obs.width, obs.height)
+    ctx.fill();
+    ctx.closePath();
   }
 }
 
+//skapar hinder och lägger in dom i varsin array
 function createObstacles(){
-  var rect = {
-    x: canv.width - 50,
+  var topRect = {
+    x: canv.width,
     y: 0,
-    width: 30,
-    height: 100
+    width: 50,
+    height: Math.random() * (canv.height - 200 - 200) + 200
   };
-  array.push(rect);
+
+  var gap = topRect.height + 175;
+
+  var bottomRect = {
+    x: canv.width,
+    y: gap,
+    width: 50,
+    height: canv.height - gap
+  };
+
+  topRects.push(topRect);
+  bottomRects.push(bottomRect);
+
 }
-setInterval(createObstacles, 1000);
+setInterval(createObstacles, 2750);
