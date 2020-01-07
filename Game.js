@@ -3,10 +3,10 @@ let canv, ctx;
 //Position- och spel fysik variabler
 var x, y,
   velocity = 0,
-  speed = 2.3,
+  speed = 4.5,
   friction = 0.98,
-  isDead = false;
-
+  isDead = false,
+  score = 0;
 
 var inactive = new Image();
 var active = new Image();
@@ -25,7 +25,7 @@ function init() {
   active.src = pic2;
   ctx.imageSmoothingEnabled = true;
 
-  inactive.style.backgroundColor = "black";
+  inactive.style.border = "2px black solid";
 
   function drawImageActualSize() {
     // Use the intrinsic size of image in CSS pixels for the canvas element
@@ -48,7 +48,6 @@ function init() {
 }
 
 var playerPos = {
-  x: this.x,
   y: 0,
   width: 70,
   height: 60
@@ -58,41 +57,49 @@ function game() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
       if (velocity > -speed && !isDead) {
-        velocity -= 13.5;
+        velocity -= 16;
       }
       isActive = true;
     }
   }, false);
-
+  
   if (velocity < speed) {
-    velocity++;
+    velocity += 1;
   }
-
+  
   velocity *= friction;
   y += velocity;
-
+  playerPos.y = y;
+  
   ctx.clearRect(0, 0, canv.width, canv.height);
-  if (!isDead) {
-    moveObstacles();
-  }
-
+  moveObstacles();
+  collisionDetection();
+  
+  increaseScore();
+  ctx.font = "30px arial";
+  ctx.textAlign = "center";
+  ctx.fillText(score, canv.width / 2, 200);
   if (y > canv.height - 50) {
     velocity = 0;
     ctx.drawImage(inactive, x, canv.height - 50, 70, 60);
+    isDead = true;
   }
   else {
     ctx.drawImage(inactive, x, y, 70, 60);
+    ctx.strokeRect(x, y, 70, 60);
     isActive = false;
   }
 
-  playerPos.y = y;
-  collisionDetection();
 }
 
 var topRects = [];
 var bottomRects = [];
 
 function moveObstacles() {
+  var moveLeft = 3;
+  if (isDead) {
+    moveLeft = 0;
+  }
   for (const obs of topRects) {
     //Tar bort onödiga obstacles som inte längre visas på skärmen
     if (obs.x < -30) {
@@ -101,15 +108,17 @@ function moveObstacles() {
       if (index > -1) {
         topRects.splice(index, 1);
       }
-      continue;
+      //continue;
     }
 
     //Minskar x värdet så att blocket flyttas åt vänster
-    obs.x -= 1;
+    obs.x -= moveLeft;
     ctx.beginPath();
     ctx.rect(obs.x, obs.y, obs.width, obs.height)
     ctx.fill();
     ctx.closePath();
+
+
   }
 
   for (const obs of bottomRects) {
@@ -120,28 +129,28 @@ function moveObstacles() {
       if (index > -1) {
         bottomRects.splice(index, 1);
       }
-      continue;
+      //continue;
     }
 
     //Minskar x värdet så att hindrena flyttas åt vänster
-    obs.x -= 1;
+    obs.x -= moveLeft;
     ctx.beginPath();
     ctx.rect(obs.x, obs.y, obs.width, obs.height)
     ctx.fill();
     ctx.closePath();
   }
 }
-
+var scoreArray = [];
 //skapar hinder och lägger in dom i varsin array
 function createObstacles() {
   var topRect = {
     x: canv.width,
     y: 0,
     width: 50,
-    height: Math.random() * (canv.height - 200 - 200) + 200
+    height: Math.random() * (canv.height - 150 - 150) + 150
   };
 
-  var gap = topRect.height + 175;
+  var gap = topRect.height + 157;
 
   var bottomRect = {
     x: canv.width,
@@ -152,14 +161,30 @@ function createObstacles() {
 
   topRects.push(topRect);
   bottomRects.push(bottomRect);
+  scoreArray.push(topRect)
 
 }
-setInterval(createObstacles, 2750);
+setInterval(createObstacles, 1500);
 
 function collisionDetection() {
   for (const obs of topRects) {
-    if ((playerPos.y > obs.x) && (playerPos.y < obs.x + obs.width) && (playerPos.y < obs.height)) {
-      isDead = true;
+    if ((x + playerPos.width > obs.x) && (y < obs.height)) {
+      if (!(x > obs.x + obs.width))
+        isDead = true;
     }
+  }
+
+  for (const obs of bottomRects) {
+    if ((x + playerPos.width > obs.x) && (y + playerPos.height > obs.y)) {
+      if (!(x > obs.x + obs.width))
+        isDead = true;
+    }
+  }
+}
+
+function increaseScore(){
+  if(x > scoreArray[0].x + scoreArray[0].width && !isDead){
+    score++;
+    scoreArray.shift();
   }
 }
