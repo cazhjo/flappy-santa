@@ -5,9 +5,10 @@ var x, y,
   velocity = 0,
   speed = 4.5,
   friction = 0.98,
-  isDead = false,
-  score = 0;
+  isDead = false;
+score = 0;
 
+var playerImg = new Image();
 var inactive = new Image();
 var active = new Image();
 
@@ -20,20 +21,22 @@ var pause;
 function init() {
   canv = document.getElementById("game");
   ctx = canv.getContext("2d");
-  
+
   inactive.onload = drawImageActualSize;
   inactive.src = pic1;
   active.src = pic2;
   ctx.imageSmoothingEnabled = true;
-  
+
+  playerImg = inactive;
+
   ctx.font = "30px arial";
   ctx.textAlign = "center";
   ctx.fillText("0", canv.width / 2, 150);
-  
+
   ctx.font = "30px arial";
   ctx.textAlign = "center";
   ctx.fillText("Press space to start", canv.width / 2, canv.height - 100);
-  
+
   pause = setInterval(startGame, 100);
 
   function drawImageActualSize() {
@@ -62,44 +65,48 @@ var playerPos = {
   height: 60
 };
 
+var imgInt;
+
 function game() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
       if (velocity > -speed && !isDead) {
         velocity -= 16;
+        playerImg = active;
+        imgInt = setInterval(test, 5)
       }
       isActive = true;
     }
   }, false);
-  
+
   if (velocity < speed) {
     velocity += 1;
   }
-  
+
   velocity *= friction;
   y += velocity;
   playerPos.y = y;
-  
+
   ctx.clearRect(0, 0, canv.width, canv.height);
   moveObstacles();
   collisionDetection();
-  
+
   ctx.font = "30px arial";
   ctx.textAlign = "center";
   ctx.fillText(score, canv.width / 2, 150);
 
   if (y > canv.height - 50) {
     velocity = 0;
-    ctx.drawImage(inactive, x, canv.height - 50, 70, 60);
+    ctx.drawImage(active, x, canv.height - 50, 70, 60);
     isDead = true;
     deathScreen();
   }
   else {
-    ctx.drawImage(inactive, x, y, 70, 60);
-    ctx.strokeRect(x, y, 70, 60);
+    ctx.drawImage(playerImg, x, y, 70, 60);
+    //ctx.strokeRect(x, y, 70, 60);
     isActive = false;
   }
-  
+
   increaseScore();
 }
 
@@ -113,7 +120,7 @@ function moveObstacles() {
   }
   for (const obs of topRects) {
     //Tar bort onödiga obstacles som inte längre visas på skärmen
-    if (obs.x < -30) {
+    if (obs.x < -300) {
       const index = topRects.indexOf(obs);
       ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
       if (index > -1) {
@@ -128,13 +135,13 @@ function moveObstacles() {
     ctx.rect(obs.x, obs.y, obs.width, obs.height)
     ctx.fill();
     ctx.closePath();
-    
-    
+
+
   }
-  
+
   for (const obs of bottomRects) {
     //Tar bort onödiga hinder som inte längre visas på skärmen
-    if (obs.x < -30) {
+    if (obs.x < -300) {
       const index = bottomRects.indexOf(obs);
       //ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
       if (index > -1) {
@@ -142,7 +149,7 @@ function moveObstacles() {
       }
       //continue;
     }
-    
+
     //Minskar x värdet så att hindrena flyttas åt vänster
     obs.x -= moveLeft;
     ctx.beginPath();
@@ -160,74 +167,86 @@ function createObstacles() {
     width: 50,
     height: Math.random() * (canv.height - 150 - 150) + 150
   };
-  
+
   var gap = topRect.height + 157;
-  
+
   var bottomRect = {
     x: canv.width,
     y: gap,
     width: 50,
     height: canv.height - gap
   };
-  
+
   topRects.push(topRect);
   bottomRects.push(bottomRect);
   scoreArray.push(topRect)
-  
+
 }
 
 function collisionDetection() {
   for (const obs of topRects) {
     if ((x + playerPos.width > obs.x) && (y < obs.height)) {
       if (!(x > obs.x + obs.width))
-      isDead = true;
+        isDead = true;
     }
   }
 
   for (const obs of bottomRects) {
     if ((x + playerPos.width > obs.x) && (y + playerPos.height > obs.y)) {
       if (!(x > obs.x + obs.width))
-      isDead = true;
+        isDead = true;
     }
   }
 }
 
-function increaseScore(){
-  if(x > scoreArray[0].x + scoreArray[0].width && !isDead){
-    score++;
-    scoreArray.shift();
+function increaseScore() {
+  if (scoreArray.length > 0) {
+    if (x > scoreArray[0].x + scoreArray[0].width && !isDead) {
+      score++;
+      scoreArray.shift();
+    }
   }
 }
 
 var gameInterval;
 var obsactleInterval;
 
-function startGame(){
+function startGame() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
       start = true;
     }
   }, false);
-  
-  if(start){
+
+  if (start) {
     clearInterval(pause);
     gameInterval = setInterval(game, 1000 / 60);
     obstacleInterval = setInterval(createObstacles, 1500);
   }
 }
 
-function deathScreen(){
+function deathScreen() {
   reset();
   init();
 }
-function reset(){
+function reset() {
   start = false;
   isDead = false;
   score = 0;
   clearInterval(gameInterval);
   clearInterval(obstacleInterval);
-  ctx.clearRect(0,0,canv.width,canv.height);
+  ctx.clearRect(0, 0, canv.width, canv.height);
   scoreArray = [];
   topRects = [];
   bottomRects = [];
+}
+
+var i = 0;
+function test() {
+  i++;
+  if (i == 15) {
+    i = 0;
+    playerImg = inactive;
+    clearInterval(imgInt);
+  }
 }
