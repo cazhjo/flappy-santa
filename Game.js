@@ -3,7 +3,7 @@ var start = false;
 //Position- och spel fysik variabler
 var x, y,
   velocity = 0,
-  speed = 4.5,
+  speed = 5,
   friction = 0.98,
   isDead = false;
 score = 0;
@@ -71,7 +71,7 @@ function game() {
   document.addEventListener('keydown', function (event) {
     if (event.keyCode == "32") {
       if (velocity > -speed && !isDead) {
-        velocity -= 16;
+        velocity = -12;
         playerImg = active;
         imgInt = setInterval(test, 5)
       }
@@ -133,6 +133,7 @@ function moveObstacles() {
     obs.x -= moveLeft;
     ctx.beginPath();
     ctx.rect(obs.x, obs.y, obs.width, obs.height)
+    ctx.fillStyle = "black";
     ctx.fill();
     ctx.closePath();
 
@@ -154,6 +155,7 @@ function moveObstacles() {
     obs.x -= moveLeft;
     ctx.beginPath();
     ctx.rect(obs.x, obs.y, obs.width, obs.height)
+    ctx.fillStyle = "black";
     ctx.fill();
     ctx.closePath();
   }
@@ -226,8 +228,7 @@ function startGame() {
 }
 
 function deathScreen() {
-  reset();
-  init();
+  highScore();   
 }
 function reset() {
   start = false;
@@ -250,3 +251,73 @@ function test() {
     clearInterval(imgInt);
   }
 }
+var highScoreList = [];
+highScoreList.push(200);
+highScoreList.push(250);
+highScoreList.push(200);
+highScoreList.push(234);
+highScoreList.push(200000);
+highScoreList.push(2002);
+function highScore() {
+  highScoreList.sort((a,b) => b - a);
+  var width = 175;
+  var height = 138;
+  ctx.beginPath();
+  ctx.rect(canv.width / 2 -width/2, canv.height / 2.26 -height/2,  width, height);
+  ctx.fillStyle = "black";
+  ctx.fill();
+  ctx.closePath();
+  var temp = 225;
+  for(let j = 0; j < 5; j++) {
+    ctx.beginPath();
+    ctx.font = "25px arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "start";
+    ctx.fillText(j + 1 + ". " + highScoreList[j], canv.width/2.7, temp)
+    ctx.closePath();
+    temp += 25;
+  }
+  ctx.rect(canv.width /2 -width/2, 343, width /2.07, 25);
+  ctx.fillStyle="black";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.font = "bold 17px arial";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "start";
+  ctx.fillText("Restart", canv.width/2.75,361)
+  ctx.closePath();
+  ctx.beginPath();
+  ctx.rect(canv.width / 2 + width/2, 343, -width/2.07, 25);
+  ctx.fillStyle = "black";
+  ctx.fill();
+  ctx.closePath();
+  ctx.beginPath();
+  ctx.font = "bold 16px arial";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "start";
+  ctx.fillText("Add Score", canv.width/1.96,361)
+  ctx.closePath();
+}
+function restart(event) {
+  if(isDead){
+  var rect = canv.getBoundingClientRect();
+  var mouseX = event.clientX - rect.left;
+  var mouseY = event.clientY - rect.top;
+  if(mouseX > canv.width/2 - 175/2 && mouseY > 343 && mouseY < 343 + 25 && mouseX < (canv.width/2 - 175/2) + (175 / 2.07)){
+    reset();
+    init();
+  }
+}
+}
+document.addEventListener("click",restart)
+function addScore() {
+  if(isDead){
+  var rect = canv.getBoundingClientRect();
+  var mouseX = event.clientX - rect.left;
+  var mouseY = event.clientY - rect.top;
+  if( mouseX > (canv.width / 2 + 175/2) - (175/2.07) && mouseY > 343 && mouseY < 343 + 25 && mouseX < canv.width / 2 + 175/2){
+    console.log("hej");
+  }
+  }
+}
+document.addEventListener("click", addScore);
