@@ -67,17 +67,18 @@ var playerPos = {
 
 var imgInt;
 
-function game() {
-  document.addEventListener('keydown', function (event) {
-    if (event.keyCode == "32") {
-      if (velocity > -speed && !isDead) {
-        velocity = -12;
-        playerImg = active;
-        imgInt = setInterval(test, 5)
-      }
-      isActive = true;
+document.addEventListener('keydown', function (event) {
+  if (event.keyCode == "32") {
+    if (velocity > -speed && !isDead) {
+      velocity = -12;
+      playerImg = active;
+      imgInt = setInterval(test, 5)
     }
-  }, false);
+    isActive = true;
+  }
+}, false);
+
+function game() {
 
   if (velocity < speed) {
     velocity += 1;
