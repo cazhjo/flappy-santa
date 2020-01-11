@@ -29,13 +29,9 @@ function init() {
 
   playerImg = inactive;
 
-  ctx.font = "30px arial";
-  ctx.textAlign = "center";
-  ctx.fillText("0", canv.width / 2, 150);
+  drawText(canv.width / 2, 150, "30px arial", "white", "center", "0");
 
-  ctx.font = "30px arial";
-  ctx.textAlign = "center";
-  ctx.fillText("Press space to start", canv.width / 2, canv.height - 100);
+  drawText(canv.width / 2, canv.height - 100, "30px arial", "white", "center", "Press space to start");
 
   pause = setInterval(startGame, 100);
 
@@ -88,13 +84,11 @@ function game() {
   y += velocity;
   playerPos.y = y;
 
-  ctx.clearRect(0, 0, canv.width, canv.height);
+  clearScreen();
   moveObstacles();
   collisionDetection();
 
-  ctx.font = "30px arial";
-  ctx.textAlign = "center";
-  ctx.fillText(score, canv.width / 2, 150);
+  drawText(canv.width / 2, 150, "30px arial", "white", "center", score);
 
   if (y > canv.height - 50) {
     velocity = 0;
@@ -119,83 +113,37 @@ function moveObstacles() {
   if (isDead) {
     moveLeft = 0;
   }
-  for (const obs of topRects) {
-    //Tar bort onödiga obstacles som inte längre visas på skärmen
+
+  for (const obs of obstacles) {
     if (obs.x < -300) {
-      const index = topRects.indexOf(obs);
-      ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
+      const index = obstacles.indexOf(obs);
       if (index > -1) {
-        topRects.splice(index, 1);
+        obstacles.splice(index, 1);
       }
       //continue;
     }
-
-    //Minskar x värdet så att blocket flyttas åt vänster
-    obs.x -= moveLeft;
-    ctx.beginPath();
-    ctx.rect(obs.x, obs.y, obs.width, obs.height)
-    ctx.fillStyle = "black";
-    ctx.fill();
-    ctx.closePath();
-
-
-  }
-
-  for (const obs of bottomRects) {
-    //Tar bort onödiga hinder som inte längre visas på skärmen
-    if (obs.x < -300) {
-      const index = bottomRects.indexOf(obs);
-      //ctx.clearRect(obs.x, obs.y, obs.width, obs.height);
-      if (index > -1) {
-        bottomRects.splice(index, 1);
-      }
-      //continue;
-    }
-
-    //Minskar x värdet så att hindrena flyttas åt vänster
-    obs.x -= moveLeft;
-    ctx.beginPath();
-    ctx.rect(obs.x, obs.y, obs.width, obs.height)
-    ctx.fillStyle = "black";
-    ctx.fill();
-    ctx.closePath();
+    obs.move(moveLeft);
+    obs.draw();
   }
 }
 var scoreArray = [];
+var obstacles = [];
+
 //skapar hinder och lägger in dom i varsin array
 function createObstacles() {
-  var topRect = {
-    x: canv.width,
-    y: 0,
-    width: 50,
-    height: Math.random() * (canv.height - 150 - 150) + 150
-  };
-
-  var gap = topRect.height + 157;
-
-  var bottomRect = {
-    x: canv.width,
-    y: gap,
-    width: 50,
-    height: canv.height - gap
-  };
-
-  topRects.push(topRect);
-  bottomRects.push(bottomRect);
-  scoreArray.push(topRect)
-
+  var obstacle = new Obstacle(canv.width, 50, 157);
+  obstacles.push(obstacle);
+  scoreArray.push(obstacle);
 }
 
 function collisionDetection() {
-  for (const obs of topRects) {
-    if ((x + playerPos.width > obs.x) && (y < obs.height)) {
+  for (const obs of obstacles) {
+    if ((x + playerPos.width > obs.x) && (y < obs.Top.height)) {
       if (!(x > obs.x + obs.width))
         isDead = true;
     }
-  }
 
-  for (const obs of bottomRects) {
-    if ((x + playerPos.width > obs.x) && (y + playerPos.height > obs.y)) {
+    if ((x + playerPos.width > obs.x) && (y + playerPos.height > obs.Bottom.y)) {
       if (!(x > obs.x + obs.width))
         isDead = true;
     }
@@ -229,29 +177,30 @@ function startGame() {
 }
 
 function deathScreen() {
-  highScore();   
+  highScore();
 }
+
 function reset() {
   start = false;
   isDead = false;
   score = 0;
   clearInterval(gameInterval);
   clearInterval(obstacleInterval);
-  ctx.clearRect(0, 0, canv.width, canv.height);
+  clearScreen();
   scoreArray = [];
-  topRects = [];
-  bottomRects = [];
+  obstacles = [];
 }
 
 var i = 0;
 function test() {
   i++;
-  if (i == 15) {
+  if (i == 25) {
     i = 0;
     playerImg = inactive;
     clearInterval(imgInt);
   }
 }
+
 var highScoreList = [];
 highScoreList.push(200);
 highScoreList.push(250);
@@ -260,65 +209,72 @@ highScoreList.push(234);
 highScoreList.push(200000);
 highScoreList.push(2002);
 function highScore() {
-  highScoreList.sort((a,b) => b - a);
+  highScoreList.sort((a, b) => b - a);
   var width = 175;
   var height = 138;
-  ctx.beginPath();
-  ctx.rect(canv.width / 2 -width/2, canv.height / 2.26 -height/2,  width, height);
-  ctx.fillStyle = "black";
-  ctx.fill();
-  ctx.closePath();
+
+  drawRect(canv.width / 2 - width / 2, canv.height / 2.26 - height / 2, width, height, "black", true);
+
   var temp = 225;
-  for(let j = 0; j < 5; j++) {
-    ctx.beginPath();
-    ctx.font = "25px arial";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "start";
-    ctx.fillText(j + 1 + ". " + highScoreList[j], canv.width/2.7, temp)
-    ctx.closePath();
+  for (let j = 0; j < 5; j++) {
+    drawText(canv.width / 2.7, temp, "25px arial", "white", "start", j + 1 + ". " + highScoreList[j]);
     temp += 25;
   }
-  ctx.rect(canv.width /2 -width/2, 343, width /2.07, 25);
-  ctx.fillStyle="black";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.font = "bold 17px arial";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "start";
-  ctx.fillText("Restart", canv.width/2.75,361)
-  ctx.closePath();
-  ctx.beginPath();
-  ctx.rect(canv.width / 2 + width/2, 343, -width/2.07, 25);
-  ctx.fillStyle = "black";
-  ctx.fill();
-  ctx.closePath();
-  ctx.beginPath();
-  ctx.font = "bold 16px arial";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "start";
-  ctx.fillText("Add Score", canv.width/1.96,361)
-  ctx.closePath();
+
+  drawRect(canv.width / 2 - width / 2, 343, width / 2.07, 25, "black", true);
+  drawText(canv.width / 2.75, 361, "bold 17px arial", "white", "start", "Restart");
+  drawRect(canv.width / 2 + width / 2, 343, -width / 2.07, 25, "black", true);
+  drawText(canv.width / 1.96, 361, "bold 16px arial", "white", "start", "Add Score");
 }
 function restart(event) {
-  if(isDead){
-  var rect = canv.getBoundingClientRect();
-  var mouseX = event.clientX - rect.left;
-  var mouseY = event.clientY - rect.top;
-  if(mouseX > canv.width/2 - 175/2 && mouseY > 343 && mouseY < 343 + 25 && mouseX < (canv.width/2 - 175/2) + (175 / 2.07)){
-    reset();
-    init();
+  if (isDead) {
+    var rect = canv.getBoundingClientRect();
+    var mouseX = event.clientX - rect.left;
+    var mouseY = event.clientY - rect.top;
+    if (mouseX > canv.width / 2 - 175 / 2 && mouseY > 343 && mouseY < 343 + 25 && mouseX < (canv.width / 2 - 175 / 2) + (175 / 2.07)) {
+      reset();
+      init();
+    }
   }
 }
-}
-document.addEventListener("click",restart)
+document.addEventListener("click", restart)
+
 function addScore() {
-  if(isDead){
-  var rect = canv.getBoundingClientRect();
-  var mouseX = event.clientX - rect.left;
-  var mouseY = event.clientY - rect.top;
-  if( mouseX > (canv.width / 2 + 175/2) - (175/2.07) && mouseY > 343 && mouseY < 343 + 25 && mouseX < canv.width / 2 + 175/2){
-    console.log("hej");
-  }
+  if (isDead) {
+    var rect = canv.getBoundingClientRect();
+    var mouseX = event.clientX - rect.left;
+    var mouseY = event.clientY - rect.top;
+    if (mouseX > (canv.width / 2 + 175 / 2) - (175 / 2.07) && mouseY > 343 && mouseY < 343 + 25 && mouseX < canv.width / 2 + 175 / 2) {
+      console.log("hej");
+    }
   }
 }
 document.addEventListener("click", addScore);
+
+// document.addEventListener("click", function(evt){
+//   var rect = canv.getBoundingClientRect();
+//   var mouseX = evt.clientX - rect.left;
+//   var mouseY = evt.clientY - rect.top;
+//   drawRect(mouseX, mouseY, 5, 5, "white", true);
+// }, false);
+
+function drawRect(x, y, width, height, color, fill) {
+  ctx.beginPath();
+  ctx.rect(x, y, width, height)
+  ctx.fillStyle = color;
+  fill == true ? ctx.fill() : ctx.stroke();
+  ctx.closePath();
+}
+
+function drawText(x, y, font, color, alignment, text) {
+  ctx.beginPath();
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textAlign = alignment;
+  ctx.fillText(text, x, y);
+  ctx.closePath();
+}
+
+function clearScreen() {
+  ctx.clearRect(0, 0, canv.width, canv.height);
+}
