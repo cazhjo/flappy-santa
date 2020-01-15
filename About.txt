@@ -1,0 +1,4 @@
+FlappySanta is a version of the game FlappyBird. The mission is to make it through the obstacles 
+to collect as many points as possible. By using space you move the santa upwards, which enables
+you to make it through the moving obstacles. For each obstacle you pass you gain 1 point. Gather
+as many points as you can to climb up the leaderboard.
