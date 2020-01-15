@@ -2,6 +2,7 @@
     font-family: candy-cane;
     src: url(fonts/candy_cane/Candcu__.ttf);
 }
+@import url('https://fonts.googleapis.com/css?family=Raleway:600&display=swap');
 
 html, body {
     width: 100%;
@@ -14,6 +15,36 @@ html, body {
     background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.1)), url("Pics/winter.jpg");
     background-repeat: no-repeat;
     background-size: cover;
+}
+
+#about {
+    background-image: url("https://cdn.pixabay.com/photo/2017/10/26/19/45/christmas-2892235_960_720.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#home {
+    background-image: url("https://cdn.pixabay.com/photo/2017/11/01/19/04/christmas-tree-2909020_960_720.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#about .container {
+    margin-top: 30%;
+    color: whitesmoke;
+    background-color: rgb(48, 48, 48);
+    border-radius: 15px;
+    padding: 30px;
+    letter-spacing: 1px;
+    font-family: 'Raleway', sans-serif, !important;
+    font-size: 16px;
+}
+
+#leaderboard {
+    background-color: rgb(48, 48, 48);
+    height: 40%;
+    border-radius: 15px;
+    margin: 10% auto;
 }
 
 canvas {
@@ -29,6 +60,67 @@ canvas {
 
 .brand {
     font-family: candy-cane;
+    font-size: 34px;
 }
 
 
+@media screen and (min-width: 600px) {
+    #about .container {
+        width: 80%;
+        font-size: 18px;
+        padding: 30px;
+        margin-top: 30%;
+    }
+
+    .brand {
+        font-size: 34px;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    #about .container {
+        font-size: 18px;
+        padding: 40px;
+        margin-top: 10%;
+    }
+
+    .brand {
+        font-size: 50px;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    #about .container {
+        font-size: 18px;
+        padding: 30px;
+        margin-top: 10%;
+    }
+
+    .brand {
+        font-size: 40px;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    #about .container {
+        font-size: 18px;
+        padding: 50px;
+        margin-top: 10%;
+    }
+
+    .brand {
+        font-size: 40px;
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    #about .container {
+        font-size: 18px;
+        padding: 50px;
+        margin-top: 10%;
+    }
+
+    .brand {
+        font-size: 40px;
+    }
+}
