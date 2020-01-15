@@ -209,9 +209,9 @@ function highScore() {
 }
 function restart(event) {
   if (isDead) {
-    var rect = canv.getBoundingClientRect();
-    var mouseX = event.clientX - rect.left;
-    var mouseY = event.clientY - rect.top;
+    var pos = getMousePos(canv, event);
+    var mouseX = pos.mouseX;
+    var mouseY = pos.mouseY;
     if (mouseX > canv.width / 2 - 175 / 2 && mouseY > 343 && mouseY < 343 + 25 && mouseX < (canv.width / 2 - 175 / 2) + (175 / 2.07)) {
       reset();
       init();
@@ -220,24 +220,22 @@ function restart(event) {
 }
 document.addEventListener("click", restart)
 
-function addScore() {
+function addScore(evt) {
   if (isDead) {
-    var rect = canv.getBoundingClientRect();
-    var mouseX = event.clientX - rect.left;
-    var mouseY = event.clientY - rect.top;
+    var pos = getMousePos(canv, evt)
+    var mouseX = pos.mouseX;
+    var mouseY = pos.mouseY;
     if (mouseX > (canv.width / 2 + 175 / 2) - (175 / 2.07) && mouseY > 343 && mouseY < 343 + 25 && mouseX < canv.width / 2 + 175 / 2) {
       console.log("hej");
     }
   }
 }
-document.addEventListener("click", addScore);
+document.addEventListener("click", addScore(evt));
 
-// document.addEventListener("click", function(evt){
-//   var rect = canv.getBoundingClientRect();
-//   var mouseX = evt.clientX - rect.left;
-//   var mouseY = evt.clientY - rect.top;
-//   drawRect(mouseX, mouseY, 5, 5, "white", true);
-// }, false);
+document.addEventListener("click", function(evt){
+  var pos = getMousePos(canv, evt)
+  setInterval(drawRect(pos.mouseX, pos.mouseY, 15, 15, "red", true), 50);
+}, false);
 
 function drawRect(x, y, width, height, color, fill) {
   ctx.beginPath();
@@ -258,4 +256,15 @@ function drawText(x, y, font, color, alignment, text) {
 
 function clearScreen() {
   ctx.clearRect(0, 0, canv.width, canv.height);
+}
+
+function getMousePos(canvas, evt){
+  var rect = canvas.getBoundingClientRect(),
+      scaleX = canvas.width / rect.width,
+      scaleY = canvas.height / rect.height;
+
+  return{
+    mouseX: (evt.clientX - rect.left) * scaleX,
+    mouseY: (evt.clientY - rect.top) * scaleY
+  };
 }
